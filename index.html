@@ -1,0 +1,50 @@
+<!-- index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>HEY! LOOK WHAT I FOUND!</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="stage">
+  <div id="card" class="card" tabindex="0" aria-label="Tap to flip">
+    <div id="cardInner" class="cardInner">
+
+      <!-- INTRO (shows once) -->
+      <div id="faceIntro" class="face front">
+        <img src="intro.png" alt="Intro card" draggable="false" />
+        <div class="uv"></div>
+      </div>
+
+      <!-- ITEM (used on first flip) -->
+      <div id="faceItem" class="face back">
+        <img src="item.png" alt="Item card" draggable="false" />
+        <div class="uv"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- KEEP (not rendered until after first flip) -->
+<template id="keepTemplate">
+  <div id="faceKeep" class="face back">
+    <img src="keep.png" alt="Keep exploring card" draggable="false" />
+
+    <!-- IG hotspot over the logo -->
+    <a id="igHotspot"
+       href="https://www.instagram.com/intromie.studio?igsh=cXU2dmo3aTBxZW5z&utm_source=qr"
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label="Open Instagram"></a>
+
+    <div class="uv"></div>
+  </div>
+</template>
+
+<script src="script.js"></script>
+</body>
+</html>
