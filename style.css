@@ -1,103 +1,149 @@
-/* style.css */
 :root{
-  --radius: 22px;
+  /* background grey */
   --bg: #8f8f8f;
+
+  /* card size ratio 63x100mm = 0.63 */
+  --cardW: min(78vw, 360px);
+  --cardH: calc(var(--cardW) / 0.63);
+
+  --radius: 22px;
+  --shadow: 0 18px 45px rgba(0,0,0,.35);
 }
 
 *{ box-sizing:border-box; }
-
-html,body{
+html,body{ height:100%; }
+body{
   margin:0;
-  height:100%;
   background: var(--bg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
+/* centered stage */
 .stage{
+  width:100%;
   height:100%;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding: 18px;
 }
 
-/* Card size (63x100mm ratio) */
-.card{
-  width: min(90vw, 420px);
-  aspect-ratio: 63 / 100;
+/* pop-in */
+.cardWrap{
+  transform: translateY(12px) scale(.92);
+  opacity: 0;
+  animation: popIn 1.5s cubic-bezier(.2,1.25,.35,1) forwards;
+}
+@keyframes popIn{
+  to { transform: translateY(0) scale(1); opacity:1; }
+}
+
+/* 3D container */
+.card3d{
+  width: var(--cardW);
+  height: var(--cardH);
+  position: relative;
+
   border-radius: var(--radius);
-  cursor:pointer;
-  outline:none;
-}
+  box-shadow: var(--shadow);
 
-.cardInner{
-  width:100%;
-  height:100%;
-  position:relative;
   transform-style: preserve-3d;
-  transition: transform 0.7s cubic-bezier(.2,.85,.2,1);
+  transition: transform .62s cubic-bezier(.2,.9,.2,1);
+  will-change: transform;
+  cursor: pointer;
+
+  /* perspective must be on parent-ish; using filter trick makes some browsers glitch.
+     Keep it simple: perspective on wrap via transform-style is enough here */
+}
+.cardWrap{
+  perspective: 1200px;
 }
 
-/* Flip */
-.card.isFlipped .cardInner{
+/* when flipped */
+.card3d.isFlipped{
   transform: rotateY(180deg);
 }
 
-/* Faces */
+/* faces */
 .face{
   position:absolute;
   inset:0;
   border-radius: var(--radius);
   overflow:hidden;
-  backface-visibility:hidden;
-  -webkit-backface-visibility:hidden;
+
+  /* KEY: prevents seeing grey "plate" during flip */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  transform-style: preserve-3d;
 }
 
+/* front face is default */
 .front{ transform: rotateY(0deg); }
+/* back face rotated */
 .back{ transform: rotateY(180deg); }
 
+/* images fill card */
 .face img{
   width:100%;
   height:100%;
-  object-fit: cover;
   display:block;
+  object-fit: cover;
   user-select:none;
   -webkit-user-drag:none;
 }
 
-/* UV overlay (must not block clicks) */
+/* UV sweep ONLY on card (clipped by overflow hidden) */
 .uv{
   position:absolute;
-  inset:-30%;
-  background: linear-gradient(
-    120deg,
-    transparent 40%,
-    rgba(180,255,255,.85) 50%,
-    transparent 60%
-  );
+  inset:-35%;
+  pointer-events:none;
   opacity:0;
-  pointer-events: none; /* IMPORTANT */
+
+  background:
+    linear-gradient(120deg,
+      rgba(255,255,255,0) 0%,
+      rgba(180,255,255,.0) 35%,
+      rgba(170,230,255,.65) 50%,
+      rgba(200,255,255,.0) 65%,
+      rgba(255,255,255,0) 100%);
+  transform: translateX(-60%) rotate(8deg);
+  mix-blend-mode: screen;
 }
 
-.uv.play{
-  animation: scan 0.9s ease-out;
+/* trigger */
+.face.uvRun .uv{
+  opacity:1;
+  animation: uvSweep .75s ease-out forwards;
+}
+@keyframes uvSweep{
+  0%   { transform: translateX(-70%) rotate(8deg); opacity:0; }
+  10%  { opacity:.9; }
+  100% { transform: translateX(75%) rotate(8deg); opacity:0; }
 }
 
-@keyframes scan{
-  from{ transform: translateX(-60%); opacity:0; }
-  15%{ opacity:1; }
-  to{ transform: translateX(60%); opacity:0; }
-}
-
-/* IG hotspot (must be block for width/height to work) */
-#igHotspot{
+/* clickable logo hotspot (only enabled on KEEP) */
+.logoLink{
   position:absolute;
-  left:25%;
-  bottom:18%;
-  width:50%;
-  height:22%;
-  display:block;     /* IMPORTANT */
-  z-index: 10;       /* IMPORTANT */
-  background: rgba(255,255,255,0);
-  cursor:pointer;
+  /* hotspot area around logo (tweak if needed) */
+  left: 32%;
+  bottom: 22%;
+  width: 36%;
+  height: 14%;
+
+  display:none; /* enabled only on keep side by JS */
+  cursor: pointer;
+}
+.logoLink.isActive{ display:block; }
+
+/* accessibility focus */
+.card3d:focus{
+  outline: none;
+}
+.card3d:focus-visible{
+  outline: 3px solid rgba(255,255,255,.55);
+  outline-offset: 6px;
 }
